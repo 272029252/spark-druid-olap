@@ -16,20 +16,52 @@
  */
 package org.apache.spark.sql.planner.logical
 
+import org.apache.spark.sql.catalyst.CatalystConf
+import org.apache.spark.sql.catalyst.analysis.{DistinctAggregationRewriter, EliminateSubQueries}
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.expressions.aggregate.{AggregateExpression, Count, Sum}
-import org.apache.spark.sql.catalyst.optimizer.{DefaultOptimizer, Optimizer}
+import org.apache.spark.sql.catalyst.optimizer._
 import org.apache.spark.sql.catalyst.plans._
 import org.apache.spark.sql.catalyst.plans.logical._
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.util.PlanUtil.maxCardinalityIsOne
 import org.apache.spark.sql.util.{ExprUtil, PlanUtil}
 
-object DruidLogicalOptimizer extends Optimizer {
-  override protected val batches: Seq[Batch] = DefaultOptimizer.batches.
-    asInstanceOf[Seq[Batch]] :+ Batch("Rewrite Sum(Literal) as Count(1)*Literal",
-    FixedPoint(100), SumOfLiteralRewrite) :+ Batch("Push GB through Project, Join",
-    FixedPoint(100), PushGB)
+ class DruidLogicalOptimizer(conf: CatalystConf) extends Optimizer(conf) {
+  // SubQueries are only needed for analysis and can be removed before execution.
+  override val batches = Batch("Remove SubQueries", FixedPoint(100),
+    EliminateSubQueries) ::
+    Batch("Aggregate", FixedPoint(100),
+      DistinctAggregationRewriter(conf),
+      ReplaceDistinctWithAggregate,
+      RemoveLiteralFromGroupExpressions) ::
+    Batch("Operator Optimizations", FixedPoint(100),
+      // Operator push down
+      SetOperationPushDown,
+      SamplePushDown,
+      PushPredicateThroughJoin,
+      PushPredicateThroughProject,
+      PushPredicateThroughGenerate,
+      PushPredicateThroughAggregate,
+      ColumnPruning,
+      // Operator combine
+      ProjectCollapsing,
+      CombineFilters,
+      CombineLimits,
+      // Constant folding
+      NullPropagation,
+      OptimizeIn,
+      ConstantFolding,
+      LikeSimplification,
+      BooleanSimplification,
+      RemoveDispensableExpressions,
+      SimplifyFilters,
+      SimplifyCasts,
+      SimplifyCaseConversionExpressions) ::
+    Batch("Decimal Optimizations", FixedPoint(100), DecimalAggregates) ::
+    Batch("LocalRelation", FixedPoint(100), ConvertToLocalRelation) ::
+    Batch("Rewrite Sum(Literal) as Count(1)*Literal", FixedPoint(100), SumOfLiteralRewrite) ::
+    Batch("Push GB through Project, Join", FixedPoint(100), PushGB) :: Nil
 }
 
 /**

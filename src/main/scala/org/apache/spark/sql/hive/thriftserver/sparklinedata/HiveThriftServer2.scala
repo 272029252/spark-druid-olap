@@ -24,12 +24,11 @@ import org.apache.spark.scheduler.{SparkListenerJobStart, StatsReportListener}
 import org.apache.spark.sql.SQLConf
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.hive.sparklinedata.SparklineDataContext
-import org.apache.spark.sql.hive.thriftserver.SparkSQLEnv._
 import org.apache.spark.sql.hive.thriftserver.HiveThriftServer2.HiveThriftServer2Listener
+import org.apache.spark.sql.hive.thriftserver.SparkSQLEnv._
 import org.apache.spark.sql.hive.thriftserver.sparklinedata.ui.DruidQueriesTab
 import org.apache.spark.sql.hive.thriftserver.ui.ThriftServerTab
 import org.apache.spark.sql.hive.thriftserver.{SparkSQLCLIDriver, SparkSQLEnv, HiveThriftServer2 => RealHiveThriftServer2}
-import org.apache.spark.sql.planner.logical.DruidLogicalOptimizer
 import org.apache.spark.sql.sources.druid.DruidPlanner
 import org.apache.spark.util.{ShutdownHookManager, Utils}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
@@ -126,7 +125,7 @@ object SparklineSQLEnv extends Logging {
 
       sparkContext = new SparkContext(sparkConf)
       sparkContext.addSparkListener(new StatsReportListener())
-      hiveContext = new SparklineDataContext(sparkContext, DruidLogicalOptimizer)
+      hiveContext = new SparklineDataContext(sparkContext)
 
       hiveContext.metadataHive.setOut(new PrintStream(System.out, true, "UTF-8"))
       hiveContext.metadataHive.setInfo(new PrintStream(System.err, true, "UTF-8"))

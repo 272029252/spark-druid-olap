@@ -41,8 +41,7 @@ class SparklineDataContext(
                             listener: SQLListener,
                             execHive: ClientWrapper,
                             metaHive: ClientInterface,
-                            isRootContext: Boolean,
-                            logicalOptimizer: Optimizer = DruidLogicalOptimizer)
+                            isRootContext: Boolean)
   extends HiveContext(
     sc,
     cacheManager,
@@ -71,10 +70,13 @@ class SparklineDataContext(
 
   DruidPlanner(this)
 
-  def this(sc: SparkContext, logicalOptimizer: Optimizer = DruidLogicalOptimizer) = {
+  def this(sc: SparkContext) = {
     this(sc, new CacheManager, SQLContext.createListenerAndUI(sc), null, null, true)
   }
   def this(sc: JavaSparkContext) = this(sc.sc)
+
+  @transient
+  override protected[sql] lazy val optimizer: Optimizer = new DruidLogicalOptimizer(conf)
 
   protected[sql] override def getSQLDialect(): ParserDialect = {
     new SparklineDataDialect(this)
@@ -92,8 +94,6 @@ class SparklineDataContext(
 
   override lazy val catalog =
     new SparklineMetastoreCatalog(metadataHive, this) with OverrideCatalog
-
-  override protected[sql] lazy val optimizer: Optimizer = logicalOptimizer
 }
 
 class SparklineMetastoreCatalog(client: ClientInterface, hive: HiveContext) extends
