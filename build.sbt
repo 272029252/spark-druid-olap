@@ -37,7 +37,7 @@ val coreTestDependencies = Seq(
 lazy val commonSettings = Seq(
   organization := "com.sparklinedata",
 
-  version := "0.3.0-SNAPSHOT",
+  version := "0.3.0-SNAPSHOT-SP1.6.2",
 
   javaOptions := Seq("-Xms1g", "-Xmx3g",
     "-Duser.timezone=UTC",
@@ -103,7 +103,7 @@ lazy val commonSettings = Seq(
 
 lazy val root = project.in(file("."))
   .settings(commonSettings: _*)
-  .settings(name := "accelerator")
+  .settings(name := "sparkline-accelerator")
   .settings(libraryDependencies ++= (coreDependencies ++ coreTestDependencies))
   .settings(assemblyOption in assembly :=
     (assemblyOption in assembly).value.copy(includeScala = false)
