@@ -21,12 +21,13 @@ import org.apache.spark.Logging
 import org.apache.spark.sql.Strategy
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, LogicalPlan, Project => LProject}
+import org.apache.spark.sql.common.util.ExprUtil
 import org.apache.spark.sql.execution._
 import org.apache.spark.sql.types.DoubleType
-import org.apache.spark.sql.util.ExprUtil
 import org.sparklinedata.druid._
 import org.sparklinedata.druid.metadata._
 import org.sparklinedata.druid.query.QuerySpecTransforms
+
 import scala.collection.mutable.{Map => MMap}
 
 private[druid] class DruidStrategy(val planner: DruidPlanner) extends Strategy

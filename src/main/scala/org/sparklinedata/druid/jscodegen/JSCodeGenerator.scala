@@ -20,8 +20,8 @@ package org.sparklinedata.druid.jscodegen
 import org.apache.commons.lang3.StringEscapeUtils
 import org.apache.spark.Logging
 import org.apache.spark.sql.catalyst.expressions._
+import org.apache.spark.sql.common.util.ExprUtil
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.util.ExprUtil
 import org.apache.spark.unsafe.types.UTF8String
 import org.sparklinedata.druid.DruidQueryBuilder
 import org.sparklinedata.druid.jscodegen.JSDateTimeCtx._

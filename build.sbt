@@ -13,6 +13,15 @@ val sparkdateTimeVersion = "0.0.2"
 val scoptVersion = "3.3.0"
 val sparkVersion = "1.6.1"
 
+val commonDependencies = Seq(
+  "com.github.nscala-time" %% "nscala-time" % nscalaVersion,
+  "org.apache.spark" %% "spark-sql" % sparkVersion % "provided"
+)
+
+val optimizerDependencies = Seq(
+  "org.apache.spark" %% "spark-sql" % sparkVersion % "provided"
+)
+
 val coreDependencies = Seq(
   "com.github.nscala-time" %% "nscala-time" % nscalaVersion,
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -106,6 +115,34 @@ lazy val commonSettings = Seq(
   ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value
 )
 
+lazy val common = project.in(file("./common/"))
+  .settings(commonSettings: _*)
+  .settings(name := "spl-common")
+  .settings(libraryDependencies ++= (commonDependencies))
+  .settings(assemblyOption in assembly :=
+    (assemblyOption in assembly).value.copy(includeScala = false)
+  )
+  .settings(
+    artifact in (Compile, assembly) ~= { art =>
+      art.copy(`classifier` = Some("assembly"))
+    }
+  )
+  .settings(addArtifact(artifact in (Compile, assembly), assembly).settings: _*)
+
+lazy val logicalopt = project.in(file("./modules/logicaloptimizer"))
+  .settings(commonSettings: _*)
+  .settings(name := "spl-optimizer")
+  .settings(libraryDependencies ++= (optimizerDependencies))
+  .settings(assemblyOption in assembly :=
+    (assemblyOption in assembly).value.copy(includeScala = false)
+  )
+  .settings(
+    artifact in (Compile, assembly) ~= { art =>
+      art.copy(`classifier` = Some("assembly"))
+    }
+  )
+  .settings(addArtifact(artifact in (Compile, assembly), assembly).settings: _*)
+  .dependsOn(common)
 
 lazy val root = project.in(file("."))
   .settings(commonSettings: _*)
@@ -120,4 +157,5 @@ lazy val root = project.in(file("."))
     }
   )
   .settings(addArtifact(artifact in (Compile, assembly), assembly).settings: _*)
+  .dependsOn(logicalopt)
 

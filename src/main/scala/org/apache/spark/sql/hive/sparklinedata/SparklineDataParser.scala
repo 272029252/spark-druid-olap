@@ -21,7 +21,7 @@ import org.apache.spark.sql.catalyst.AbstractSparkSQLParser
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
 import org.apache.spark.sql.hive.{HiveContext, HiveQLDialect, HiveQl}
 import org.apache.spark.sql.sparklinedata.commands.{ClearMetadata, ExplainDruidRewrite}
-import org.apache.spark.sql.util.PlanUtil
+import org.apache.spark.sql.util.DruidPlanUtil
 
 class SparklineDataDialect(sqlContext: HiveContext) extends HiveQLDialect(sqlContext) {
   val parser = new SparklineDataParser(sqlContext)
@@ -68,7 +68,7 @@ class SparklineDataParser(sqlContext: HiveContext) extends AbstractSparkSQLParse
     (ON ~> DRUIDDATASOURCE ~> ident) ~ (USING ~> HISTORICAL).? ~
       (EXECUTE ~> opt(QUERY) ~> restInput) ^^ {
       case ds ~ hs ~ query => {
-        PlanUtil.logicalPlan(ds, query, hs.isDefined)(sqlContext)
+        DruidPlanUtil.logicalPlan(ds, query, hs.isDefined)(sqlContext)
       }
     }
 

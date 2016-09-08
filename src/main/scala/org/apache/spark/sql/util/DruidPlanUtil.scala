@@ -26,7 +26,7 @@ import org.sparklinedata.druid.metadata.DruidRelationInfo
 import org.sparklinedata.druid.{DruidQuery, DruidRelation, QuerySpec, Utils}
 
 
-object PlanUtil {
+object DruidPlanUtil {
 
   import Utils._
 
@@ -57,70 +57,5 @@ object PlanUtil {
       drInfo.get.options.numSegmentsPerHistoricalQuery(sqlContext))
     val dR = DruidRelation(drInfo.get, Some(dq))(sqlContext)
     LogicalRelation(dR, None)
-  }
-
-  /**
-    * Get cardinality agumenters below the given node
-    *
-    * @param root Node below which to look for aggregates
-    * @return
-    */
-  def getCardinalityAugmenters(root: LogicalPlan): Seq[LogicalPlan] = {
-    root.collect {
-      case j@Join(l, r, _, _) if !maxCardinalityIsOne(l) || !maxCardinalityIsOne(r) => j
-      case u: Union => u
-      case g: Generate => g
-      case c: Cube => c
-      case r: Rollup => r
-      case gs: GroupingSets => gs
-    }
-  }
-
-  /**
-    * Is the given node a cardinality augmenter?
-    *
-    * @param lp Node to check for
-    * @return
-    */
-  def cardinalityAugmenter(lp: LogicalPlan): Boolean = {
-    lp match {
-      case Join(l, r, _, _) => true
-      case u: Union => true
-      case g: Generate => true
-      case c: Cube => true
-      case r: Rollup => true
-      case gs: GroupingSets => true
-      case _ => false
-    }
-  }
-
-  /**
-    * Is cardinality augmented between given node (inclusive) & all of its children (exclusive)
-    *
-    * @param root Starting Node
-    * @param children boundary nodes (exclusive)
-    * @return
-    */
-  def isCardinalityAugmented(root: LogicalPlan, children: Seq[LogicalPlan]): Boolean = {
-    cardinalityAugmenter(root) || {
-      val cardinalityAugmenters = getCardinalityAugmenters(root)
-      cardinalityAugmenters.exists(ca => children.forall(ch => ca.containsChild.contains(ch)))
-    }
-  }
-
-  /**
-    * Is the cardinality of given node one?
-    *
-    * @param lp node to check for
-    * @return
-    */
-  def maxCardinalityIsOne(lp: LogicalPlan): Boolean = {
-    var isone = false
-
-    val aggs = lp.collect {case ag: Aggregate if ag.groupingExpressions.isEmpty => ag}
-    if (aggs.nonEmpty) {
-      isone = !isCardinalityAugmented(lp, aggs.asInstanceOf[Seq[LogicalPlan]])
-    }
-    isone
   }
 }

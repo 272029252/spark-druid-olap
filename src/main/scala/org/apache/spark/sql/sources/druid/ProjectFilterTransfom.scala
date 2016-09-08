@@ -17,12 +17,12 @@
 
 package org.apache.spark.sql.sources.druid
 
-import org.apache.spark.sql.{DataFrame, SQLContext}
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.catalyst.planning.PhysicalOperation
+import org.apache.spark.sql.common.util.ExprUtil
 import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.types.{BooleanType, DataType, LongType}
-import org.apache.spark.sql.util.ExprUtil
+import org.apache.spark.sql.util.DruidExprUtil
 import org.sparklinedata.druid.Debugging._
 import org.sparklinedata.druid._
 import org.sparklinedata.druid.jscodegen.JSCodeGenerator
@@ -98,7 +98,7 @@ trait ProjectFilterTransfom {
       val dqb: Option[DruidQueryBuilder] = Some(DruidQueryBuilder(actualInfo))
       translateProjectFilter(dqb,
         projectList,
-        ExprUtil.simplifyPreds(dqb.get, filters))
+        DruidExprUtil.simplifyPreds(dqb.get, filters))
     }
     case _ => Seq()
   }

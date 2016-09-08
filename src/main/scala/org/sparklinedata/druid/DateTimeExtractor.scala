@@ -19,8 +19,8 @@ package org.sparklinedata.druid
 
 import com.github.nscala_time.time.Imports._
 import org.apache.spark.sql.catalyst.expressions._
+import org.apache.spark.sql.common.util.ExprUtil
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.util.ExprUtil
 import org.joda.time.DateTime
 import org.sparklinedata.druid.metadata.{DruidColumn, DruidDataSource}
 import org.sparklinedata.spark.dateTime.Functions._

@@ -23,8 +23,7 @@ import org.apache.spark.sql.catalyst.optimizer.{DefaultOptimizer, Optimizer}
 import org.apache.spark.sql.catalyst.plans._
 import org.apache.spark.sql.catalyst.plans.logical._
 import org.apache.spark.sql.catalyst.rules.Rule
-import org.apache.spark.sql.util.PlanUtil.maxCardinalityIsOne
-import org.apache.spark.sql.util.{ExprUtil, PlanUtil}
+import org.apache.spark.sql.common.util.{ExprUtil, PlanUtil}
 
 case class DruidLogicalOptimizer(conf : SQLConf) extends Optimizer {
   override protected val batches: Seq[Batch] = DefaultOptimizer.batches.
@@ -114,8 +113,8 @@ object PushGB extends Rule[LogicalPlan] with PredicateHelper {
       //    Non push candidate has cardinality of one ?
       if (pc.nonEmpty &&
         !(pc.get.aggs.toSet ++ pc.get.gbExps.toSet).exists(ag => !ag.deterministic) &&
-        ((pc.get.pushToR & maxCardinalityIsOne(j.left)) ||
-          (pc.get.pushToL & maxCardinalityIsOne(j.right)))) {
+        ((pc.get.pushToR & PlanUtil.maxCardinalityIsOne(j.left)) ||
+          (pc.get.pushToL & PlanUtil.maxCardinalityIsOne(j.right)))) {
         val pushSideChild = if (pc.get.pushToL) j.left else j.right
         val c1SideChild = if (pc.get.pushToL) j.right else j.left
 

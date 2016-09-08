@@ -21,7 +21,7 @@ import org.apache.spark.sql.catalyst.expressions.Attribute
 import org.apache.spark.sql.execution.RunnableCommand
 import org.apache.spark.sql.sources.druid.{DruidPlanner, DruidQueryCostModel}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.util.PlanUtil
+import org.apache.spark.sql.util.DruidPlanUtil
 import org.apache.spark.sql.{Row, SQLContext}
 import org.joda.time.Interval
 import org.sparklinedata.druid.metadata.{DruidMetadataCache, DruidRelationName, DruidRelationOptions}

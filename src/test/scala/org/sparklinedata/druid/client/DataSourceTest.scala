@@ -17,7 +17,7 @@
 
 package org.sparklinedata.druid.client
 
-import org.apache.spark.sql.util.PlanUtil
+import org.apache.spark.sql.util.DruidPlanUtil
 import org.apache.spark.sql.execution.datasources.LogicalRelation
 import org.apache.spark.sql.hive.test.sparklinedata.TestHive
 import org.apache.spark.sql.hive.test.sparklinedata.TestHive._
@@ -90,8 +90,8 @@ class DataSourceTest extends BaseTest {
 
   test("direct") { td =>
     val dq = new DruidQuery(TPCHQueries.q1MonthGrain)
-    val drInfo = PlanUtil.druidRelationInfo("orderLineItemPartSupplier")(TestHive)
-    val df = PlanUtil.dataFrame(drInfo.get, dq)(TestHive)
+    val drInfo = DruidPlanUtil.druidRelationInfo("orderLineItemPartSupplier")(TestHive)
+    val df = DruidPlanUtil.dataFrame(drInfo.get, dq)(TestHive)
 
     println(df.queryExecution.optimizedPlan)
     df.show(10)

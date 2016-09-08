@@ -26,7 +26,7 @@ import org.apache.spark.sql.hive.test.sparklinedata.TestHive
 import org.apache.spark.sql.hive.test.sparklinedata.TestHive._
 import org.apache.spark.sql.sources.druid.DruidPlanner
 import org.apache.spark.sql.types.DataType
-import org.apache.spark.sql.util.ExprUtil
+import org.apache.spark.sql.util.DruidExprUtil
 import org.joda.time.DateTimeZone
 import org.scalatest.{BeforeAndAfterAll, fixture}
 import org.sparklinedata.druid._
@@ -327,7 +327,7 @@ abstract class BaseTest extends fixture.FunSuite with DruidQueryChecks with
   }
 
   def roundValue(chooseRounding : Boolean, v : Any, dt: DataType) : Any = {
-    if ( chooseRounding && v != null && ExprUtil.isNumeric(dt)) {
+    if ( chooseRounding && v != null && DruidExprUtil.isNumeric(dt)) {
       BigDecimal(v.toString).setScale(1, BigDecimal.RoundingMode.HALF_UP).toDouble
     } else {
       v
